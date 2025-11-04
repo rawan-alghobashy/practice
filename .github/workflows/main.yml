@@ -15,8 +15,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List files
-        run: ls -la
+      - name: Show Git info
+        run: |
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+          echo "Edited by: ${{ github.actor }}"
 
-      - name: Print message
-        run: echo "✅ Workflow is running successfully!"
+      - name: Fail if workflow file was edited
+        run: |
+          if git diff --name-only HEAD~1 | grep -q ".github/workflows"; then
+            echo "❌ Workflow file was edited! Failing the build..."
+            exit 1
+          else
+            echo "✅ Workflow not edited, all good!"
+          fi  
+
+
